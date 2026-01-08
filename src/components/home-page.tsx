@@ -17,43 +17,25 @@ export function HomePage() {
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchMatches = async () => {
-    const { data, error } = await supabase
-      .from('matches')
-      .select('*')
-      .order('start_time', { ascending: true });
-    
-    if (data) {
-      const transformedMatches: Match[] = data.map(m => ({
-        id: m.id,
-        sport: m.sport,
-        league: m.league,
-        homeTeam: m.home_team,
-        awayTeam: m.away_team,
-        odds: m.odds,
-        isLive: m.is_live,
-        startTime: new Date(m.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        minute: m.minute
-      }));
-      setMatches(transformedMatches);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchMatches();
-
-    const channel = supabase
-      .channel('matches-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => {
-        fetchMatches();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
+    const fetchMatches = async () => {
+      try {
+        const response = await fetch('/api/sports');
+        if (!response.ok) throw new Error('Failed to fetch sports');
+        const data = await response.json();
+        setMatches(data);
+      } catch (error) {
+        console.error('Error fetching matches:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-  }, []);
+
+    useEffect(() => {
+      fetchMatches();
+      // Poll every 30 seconds for live odds
+      const interval = setInterval(fetchMatches, 30000);
+      return () => clearInterval(interval);
+    }, []);
 
   const handleMatchesUpdate = useCallback((updatedMatches: Match[]) => {
     setMatches(updatedMatches);
@@ -71,12 +53,13 @@ export function HomePage() {
         <HeroSection />
         
         <main className="max-w-7xl mx-auto px-4 py-12" id="sports">
-          <div className="mb-8">
-            <SportsCategories 
-              selectedSport={selectedSport} 
-              onSelectSport={setSelectedSport} 
-            />
-          </div>
+            <div className="mb-8">
+              <SportsCategories 
+                selectedSport={selectedSport} 
+                onSelectSport={setSelectedSport} 
+                matches={matches}
+              />
+            </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" id="live">
             <div className="lg:col-span-2 space-y-12">

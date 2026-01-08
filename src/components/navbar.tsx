@@ -71,7 +71,15 @@ export function Navbar() {
                     </Button>
                   </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 glass-card border-border">
-                      <Link href="/profile">
+                        {user.email === 'admin1234@gmail.com' && (
+                          <Link href="/admin">
+                            <DropdownMenuItem className="cursor-pointer text-[var(--neon)]">
+                              <Settings className="w-4 h-4 mr-2" />
+                              Admin Panel
+                            </DropdownMenuItem>
+                          </Link>
+                        )}
+                        <Link href="/profile">
                         <DropdownMenuItem className="cursor-pointer">
                           <User className="w-4 h-4 mr-2" />
                           Profile
