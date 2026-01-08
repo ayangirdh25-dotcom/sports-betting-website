@@ -29,61 +29,80 @@ export function BettingProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for initial session
-    const initSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (profile) {
-          setProfile(profile);
-          setBalance(profile.balance);
-        }
-      }
-      setLoading(false);
-    };
+    useEffect(() => {
+      let isMounted = true;
 
-    initSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (profile) {
-          setProfile(profile);
-          setBalance(profile.balance);
-        } else {
-          // If profile doesn't exist, create it (as a fallback if trigger fails)
-          const { data: newProfile } = await supabase
-            .from('profiles')
-            .upsert({ id: session.user.id, username: session.user.user_metadata.username, balance: 1000.00 })
-            .select()
-            .single();
-          if (newProfile) {
-            setProfile(newProfile);
-            setBalance(newProfile.balance);
+      const handleUserAndProfile = async (sessionUser: User | null) => {
+        if (!sessionUser) {
+          if (isMounted) {
+            setUser(null);
+            setProfile(null);
+            setBalance(0);
+            setLoading(false);
           }
+          return;
         }
-      } else {
-        setProfile(null);
-        setBalance(0);
-      }
-      setLoading(false);
-    });
 
-    return () => subscription.unsubscribe();
-  }, []);
+        if (isMounted) setUser(sessionUser);
+
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', sessionUser.id)
+          .single();
+        
+        if (isMounted) {
+          if (profile) {
+            setProfile(profile);
+            setBalance(profile.balance);
+          } else {
+            // Create profile if it doesn't exist
+            const { data: newProfile } = await supabase
+              .from('profiles')
+              .upsert({ 
+                id: sessionUser.id, 
+                username: sessionUser.user_metadata.username || sessionUser.email?.split('@')[0], 
+                balance: 1000.00 
+              })
+              .select()
+              .single();
+            
+            if (newProfile) {
+              setProfile(newProfile);
+              setBalance(newProfile.balance);
+            }
+          }
+          setLoading(false);
+        }
+      };
+
+      // Initial session check
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          handleUserAndProfile(session.user);
+        } else {
+          setLoading(false);
+        }
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          if (isMounted) {
+            setUser(null);
+            setProfile(null);
+            setBalance(0);
+            setLoading(false);
+          }
+        } else if (session?.user) {
+          handleUserAndProfile(session.user);
+        }
+      });
+
+      return () => {
+        isMounted = false;
+        subscription.unsubscribe();
+      };
+    }, []);
 
   const addToBetSlip = useCallback((bet: BetSlipItem) => {
     setBetSlip(prev => {

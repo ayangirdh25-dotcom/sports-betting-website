@@ -14,7 +14,15 @@ export function UpcomingEvents({ matches }: UpcomingEventsProps) {
   const { addToBetSlip, isBetInSlip } = useBetting();
   const upcomingMatches = matches.filter(m => !m.isLive);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const formatMatchTime = (isoString: string) => {
+    if (!mounted) return ''; // Return empty or placeholder during SSR
+
     const date = new Date(isoString);
     const now = new Date();
     const tomorrow = new Date(now);
@@ -23,7 +31,11 @@ export function UpcomingEvents({ matches }: UpcomingEventsProps) {
     const isToday = date.toDateString() === now.toDateString();
     const isTomorrow = date.toDateString() === tomorrow.toDateString();
 
-    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const timeStr = date.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
 
     if (isToday) return `Today ${timeStr}`;
     if (isTomorrow) return `Tomorrow ${timeStr}`;

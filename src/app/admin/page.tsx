@@ -35,13 +35,18 @@ export default function AdminPage() {
   });
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!profile || profile.role !== 'admin') {
-        router.push('/');
-        return;
+    const checkAdmin = async () => {
+      if (!authLoading) {
+        if (!profile || profile.role !== 'admin') {
+          // Add a small delay to ensure profile is really not there
+          // and not just being updated by a parallel process
+          router.replace('/');
+          return;
+        }
+        fetchConfigs();
       }
-      fetchConfigs();
-    }
+    };
+    checkAdmin();
   }, [profile, authLoading, router]);
 
   async function fetchConfigs() {
