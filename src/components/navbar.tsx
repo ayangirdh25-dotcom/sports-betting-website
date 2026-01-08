@@ -70,8 +70,8 @@ export function Navbar() {
                       {profile?.username || user.email}
                     </Button>
                   </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 glass-card border-border">
-                        {profile?.username?.toLowerCase() === 'admin' && (
+                      <DropdownMenuContent align="end" className="w-48 glass-card border-border">
+                        {profile?.role === 'admin' && (
                           <Link href="/admin">
                             <DropdownMenuItem className="cursor-pointer text-[var(--neon)]">
                               <Settings className="w-4 h-4 mr-2" />

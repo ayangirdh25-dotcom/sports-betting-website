@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ export function AuthModal() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
     const handleAuth = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -34,7 +36,7 @@ export function AuthModal() {
 
       try {
         if (isLogin) {
-          const { error } = await supabase.auth.signInWithPassword({ 
+          const { data, error } = await supabase.auth.signInWithPassword({ 
             email: virtualEmail, 
             password 
           });
@@ -44,6 +46,20 @@ export function AuthModal() {
             }
             throw error;
           }
+
+          // Check for admin role and redirect
+          if (data.user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', data.user.id)
+              .single();
+            
+            if (profile?.role === 'admin') {
+              router.push('/admin');
+            }
+          }
+
           toast.success('Successfully logged in!');
           setOpen(false);
         } else {
