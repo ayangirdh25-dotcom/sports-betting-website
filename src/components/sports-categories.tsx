@@ -15,8 +15,8 @@ interface SportsCategoriesProps {
 export function SportsCategories({ selectedSport, onSelectSport, matches = [] }: SportsCategoriesProps) {
   // Dynamically derive active sports from matches
   const activeSports = useMemo(() => {
-    if (!matches) return [];
-    const sports = new Set(matches.map(m => m.sport));
+    if (!matches || !Array.isArray(matches)) return [];
+    const sports = new Set(matches.map(m => m.sport).filter(Boolean));
     return Array.from(sports).map(sportId => {
       const knownSport = sportsCategories.find(s => s.id === sportId || s.name.toLowerCase() === sportId.toLowerCase());
       return {

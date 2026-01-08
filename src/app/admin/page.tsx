@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,8 +29,6 @@ export default function AdminPage() {
     base_url: 'https://api.the-odds-api.com',
     is_active: false
   });
-
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     fetchConfigs();
