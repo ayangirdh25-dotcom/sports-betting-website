@@ -16,15 +16,20 @@ export function SportsCategories({ selectedSport, onSelectSport, matches = [] }:
   // Dynamically derive active sports from matches
   const activeSports = useMemo(() => {
     if (!matches || !Array.isArray(matches)) return [];
-    const sports = new Set(matches.map(m => m.sport).filter(Boolean));
-    return Array.from(sports).map(sportId => {
-      const knownSport = sportsCategories.find(s => s.id === sportId || s.name.toLowerCase() === sportId.toLowerCase());
-      return {
-        id: sportId,
-        name: knownSport?.name || sportId.charAt(0).toUpperCase() + sportId.slice(1),
-        icon: knownSport?.icon || '🏆'
-      };
-    });
+    try {
+      const sports = new Set(matches.filter(m => m && m.sport).map(m => m.sport));
+      return Array.from(sports).map(sportId => {
+        const knownSport = sportsCategories.find(s => s.id === sportId || s.name.toLowerCase() === sportId.toLowerCase());
+        return {
+          id: sportId,
+          name: knownSport?.name || sportId.charAt(0).toUpperCase() + sportId.slice(1),
+          icon: knownSport?.icon || '🏆'
+        };
+      });
+    } catch (e) {
+      console.error("Error processing sports categories:", e);
+      return [];
+    }
   }, [matches]);
 
   return (
