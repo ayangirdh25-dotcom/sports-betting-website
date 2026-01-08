@@ -171,8 +171,9 @@ export function AuthModal() {
             >
               {isLogin ? 'Sign Up' : 'Login'}
             </button>
-          </p>
-        </form>
+            </p>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
