@@ -34,17 +34,25 @@ export function Navbar() {
               </span>
             </Link>
             
-            <div className="hidden md:flex items-center gap-6">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-                >
-                  {link.name}
-                </a>
-              ))}
-            </div>
+              <div className="hidden md:flex items-center gap-6">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+                  >
+                    {link.name}
+                  </a>
+                ))}
+                {user && (
+                  <Link
+                    href="/profile"
+                    className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+                  >
+                    Profile
+                  </Link>
+                )}
+              </div>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
@@ -119,21 +127,49 @@ export function Navbar() {
                   {link.name}
                 </a>
               ))}
-              {user && (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary w-fit">
-                  <Wallet className="w-4 h-4 text-[var(--neon)]" />
-                  <span className="font-semibold">${balance.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex gap-2">
-                {!user ? (
-                  <AuthModal />
-                ) : (
-                  <Button onClick={() => signOut()} variant="outline" className="flex-1 text-destructive">
-                    Logout
-                  </Button>
+                {user && (
+                  <div className="space-y-4 pt-4 border-t border-border">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary w-fit">
+                      <Wallet className="w-4 h-4 text-[var(--neon)]" />
+                      <span className="font-semibold">${balance.toFixed(2)}</span>
+                    </div>
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors font-medium px-1"
+                    >
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Link>
+                    <Link
+                      href="/profile?tab=history"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors font-medium px-1"
+                    >
+                      <Trophy className="w-4 h-4" />
+                      Bet History
+                    </Link>
+                  </div>
                 )}
-              </div>
+                <div className="flex gap-2 pt-4 border-t border-border">
+                  {!user ? (
+                    <div onClick={() => setIsOpen(false)} className="w-full">
+                      <AuthModal />
+                    </div>
+                  ) : (
+                    <Button 
+                      onClick={() => {
+                        signOut();
+                        setIsOpen(false);
+                      }} 
+                      variant="outline" 
+                      className="flex-1 text-destructive"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  )}
+                </div>
             </div>
           </motion.div>
         )}
