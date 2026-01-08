@@ -159,12 +159,12 @@ export function Navbar() {
                     </Link>
                   </div>
                 )}
-                <div className="flex gap-2 pt-4 border-t border-border">
-                  {!user ? (
-                    <div onClick={() => setIsOpen(false)} className="w-full">
-                      <AuthModal />
-                    </div>
-                  ) : (
+                  <div className="flex gap-2 pt-4 border-t border-border">
+                    {!user ? (
+                      <div className="w-full">
+                        <AuthModal />
+                      </div>
+                    ) : (
                     <Button 
                       onClick={() => {
                         signOut();

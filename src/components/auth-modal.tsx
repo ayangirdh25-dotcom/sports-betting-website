@@ -14,57 +14,70 @@ export function AuthModal() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
-      return;
-    }
-
-    setLoading(true);
-    const virtualEmail = `${username}@app.local`;
-
-    try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ 
-          email: virtualEmail, 
-          password 
-        });
-        if (error) throw error;
-        toast.success('Successfully logged in!');
-        setOpen(false);
-      } else {
-        // Sign up via API to auto-confirm
-        const response = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to create account');
-        }
-
-        // Auto login after signup
-        const { error: loginError } = await supabase.auth.signInWithPassword({
-          email: virtualEmail,
-          password
-        });
-
-        if (loginError) throw loginError;
-
-        toast.success('Account created and logged in!');
-        setOpen(false);
+    const handleAuth = async (e: React.FormEvent) => {
+      e.preventDefault();
+      
+      const cleanUsername = username.trim().toLowerCase();
+      
+      if (!cleanUsername) {
+        toast.error('Username is required');
+        return;
       }
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      if (password.length < 6) {
+        toast.error('Password must be at least 6 characters long');
+        return;
+      }
+
+      setLoading(true);
+      const virtualEmail = `${cleanUsername}@app.local`;
+
+      try {
+        if (isLogin) {
+          const { error } = await supabase.auth.signInWithPassword({ 
+            email: virtualEmail, 
+            password 
+          });
+          if (error) {
+            if (error.message.includes('Invalid login credentials')) {
+              throw new Error('Invalid username or password');
+            }
+            throw error;
+          }
+          toast.success('Successfully logged in!');
+          setOpen(false);
+        } else {
+          // Sign up via API to auto-confirm
+          const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: cleanUsername, password }),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.error || 'Failed to create account');
+          }
+
+          // Auto login after signup
+          const { error: loginError } = await supabase.auth.signInWithPassword({
+            email: virtualEmail,
+            password
+          });
+
+          if (loginError) throw loginError;
+
+          toast.success('Account created and logged in!');
+          setOpen(false);
+        }
+      } catch (error: any) {
+        console.error('Auth error:', error);
+        toast.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);

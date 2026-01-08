@@ -30,15 +30,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const cleanUsername = username.trim().toLowerCase();
+
     // Create virtual email for Supabase Auth
-    const email = `${username}@app.local`;
+    const email = `${cleanUsername}@app.local`;
 
     // Create user using admin API to auto-confirm
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
-      user_metadata: { username }
+      user_metadata: { username: cleanUsername }
     });
 
     if (error) {
