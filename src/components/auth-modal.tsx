@@ -15,8 +15,14 @@ export function AuthModal() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const handleAuth = async (e: React.FormEvent) => {
+    const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isLogin && password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -74,16 +80,21 @@ export function AuthModal() {
               required
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Password</label>
-            <Input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Password</label>
+              <Input
+                type="password"
+                placeholder="Min. 6 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              {!isLogin && (
+                <p className="text-[10px] text-muted-foreground">
+                  Password must be at least 6 characters long.
+                </p>
+              )}
+            </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
           </Button>
