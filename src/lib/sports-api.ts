@@ -62,6 +62,6 @@ async function fetchFromTheOddsApi(config: any): Promise<Match[]> {
       away: item.bookmakers[0]?.markets[0]?.outcomes.find((o: any) => o.name === item.away_team)?.price || 1.0,
     },
     isLive: false,
-    startTime: new Date(item.commence_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    startTime: item.commence_time,
   }));
 }

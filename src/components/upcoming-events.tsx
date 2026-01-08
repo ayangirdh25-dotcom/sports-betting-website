@@ -14,6 +14,23 @@ export function UpcomingEvents({ matches }: UpcomingEventsProps) {
   const { addToBetSlip, isBetInSlip } = useBetting();
   const upcomingMatches = matches.filter(m => !m.isLive);
 
+  const formatMatchTime = (isoString: string) => {
+    const date = new Date(isoString);
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const isToday = date.toDateString() === now.toDateString();
+    const isTomorrow = date.toDateString() === tomorrow.toDateString();
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (isToday) return `Today ${timeStr}`;
+    if (isTomorrow) return `Tomorrow ${timeStr}`;
+    
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ` ${timeStr}`;
+  };
+
   const handleBetClick = (match: Match, selection: 'home' | 'draw' | 'away', odds: number) => {
     const selectionName = selection === 'home' ? match.homeTeam.name : 
                           selection === 'away' ? match.awayTeam.name : 'Draw';
@@ -53,10 +70,10 @@ export function UpcomingEvents({ matches }: UpcomingEventsProps) {
                 </span>
                 <span className="text-xs text-muted-foreground">{match.league}</span>
               </div>
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Today {match.startTime}
-              </span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {formatMatchTime(match.startTime)}
+                </span>
             </div>
 
             <div className="flex items-center justify-between mb-4">

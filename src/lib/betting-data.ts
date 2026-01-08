@@ -18,7 +18,7 @@ export interface Match {
   awayTeam: Team;
   odds: Odds;
   isLive: boolean;
-  startTime: string;
+  startTime: string; // ISO string
   minute?: number;
 }
 
@@ -44,6 +44,13 @@ export const sportsCategories = [
   { id: 'formula1', name: 'Formula 1', icon: '🏎️' },
 ];
 
+const today = new Date();
+const getFutureDate = (hours: number) => {
+  const d = new Date(today);
+  d.setHours(d.getHours() + hours);
+  return d.toISOString();
+};
+
 export const initialMatches: Match[] = [
   {
     id: '1',
@@ -53,7 +60,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Liverpool', logo: '🔴', score: 1 },
     odds: { home: 1.85, draw: 3.40, away: 4.20 },
     isLive: true,
-    startTime: '15:00',
+    startTime: getFutureDate(-2),
     minute: 67,
   },
   {
@@ -64,7 +71,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Barcelona', logo: '🟣', score: 0 },
     odds: { home: 2.10, draw: 3.25, away: 3.50 },
     isLive: true,
-    startTime: '20:00',
+    startTime: getFutureDate(-1),
     minute: 23,
   },
   {
@@ -75,7 +82,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Celtics', logo: '💚', score: 94 },
     odds: { home: 1.95, away: 1.85 },
     isLive: true,
-    startTime: '19:30',
+    startTime: getFutureDate(-1.5),
     minute: 38,
   },
   {
@@ -86,7 +93,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Alcaraz', logo: '🇪🇸' },
     odds: { home: 1.65, away: 2.25 },
     isLive: false,
-    startTime: '18:00',
+    startTime: getFutureDate(4),
   },
   {
     id: '5',
@@ -96,7 +103,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Gen.G', logo: '🟡' },
     odds: { home: 1.75, away: 2.05 },
     isLive: false,
-    startTime: '14:00',
+    startTime: getFutureDate(2),
   },
   {
     id: '6',
@@ -106,7 +113,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Pereira', logo: '🇧🇷' },
     odds: { home: 2.40, away: 1.58 },
     isLive: false,
-    startTime: '22:00',
+    startTime: getFutureDate(10),
   },
   {
     id: '7',
@@ -116,7 +123,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'PSG', logo: '🔵', score: 2 },
     odds: { home: 1.55, draw: 4.00, away: 5.50 },
     isLive: true,
-    startTime: '21:00',
+    startTime: getFutureDate(-1.8),
     minute: 82,
   },
   {
@@ -127,7 +134,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Olympiacos', logo: '🔴' },
     odds: { home: 1.45, away: 2.70 },
     isLive: false,
-    startTime: '20:45',
+    startTime: getFutureDate(8),
   },
   {
     id: '9',
@@ -137,7 +144,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'CSK', logo: '🦁' },
     odds: { home: 1.90, away: 1.90 },
     isLive: false,
-    startTime: '19:00',
+    startTime: getFutureDate(6),
   },
   {
     id: '10',
@@ -147,7 +154,7 @@ export const initialMatches: Match[] = [
     awayTeam: { name: 'Lewis Hamilton', logo: '🏎️' },
     odds: { home: 1.50, away: 3.50 },
     isLive: false,
-    startTime: '17:00',
+    startTime: getFutureDate(5),
   },
 ];
 
