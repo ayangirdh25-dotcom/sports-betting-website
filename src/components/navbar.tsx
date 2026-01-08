@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Zap, Menu, X, Wallet, LogIn, UserPlus, Trophy, Gift, LogOut, User } from 'lucide-react';
+import { Zap, Menu, X, Wallet, LogIn, UserPlus, Trophy, Gift, LogOut, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBetting } from '@/components/betting-context';
 import { AuthModal } from '@/components/auth-modal';
@@ -71,7 +71,7 @@ export function Navbar() {
                     </Button>
                   </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 glass-card border-border">
-                        {user.email === 'admin1234@gmail.com' && (
+                        {profile?.username?.toLowerCase() === 'admin' && (
                           <Link href="/admin">
                             <DropdownMenuItem className="cursor-pointer text-[var(--neon)]">
                               <Settings className="w-4 h-4 mr-2" />
