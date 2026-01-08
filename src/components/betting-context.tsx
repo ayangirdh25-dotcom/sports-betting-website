@@ -31,6 +31,7 @@ export function BettingProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
       let isMounted = true;
+      let sessionChecked = false;
 
       const handleUserAndProfile = async (sessionUser: User | null) => {
         if (!sessionUser) {
@@ -45,43 +46,53 @@ export function BettingProvider({ children }: { children: ReactNode }) {
 
         if (isMounted) setUser(sessionUser);
 
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', sessionUser.id)
-          .single();
-        
-        if (isMounted) {
-          if (profile) {
-            setProfile(profile);
-            setBalance(profile.balance);
-          } else {
-            // Create profile if it doesn't exist
-            const { data: newProfile } = await supabase
-              .from('profiles')
-              .upsert({ 
-                id: sessionUser.id, 
-                username: sessionUser.user_metadata.username || sessionUser.email?.split('@')[0], 
-                balance: 1000.00 
-              })
-              .select()
-              .single();
-            
-            if (newProfile) {
-              setProfile(newProfile);
-              setBalance(newProfile.balance);
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', sessionUser.id)
+            .single();
+          
+          if (isMounted) {
+            if (profile) {
+              setProfile(profile);
+              setBalance(profile.balance);
+            } else {
+              // Create profile if it doesn't exist
+              const { data: newProfile } = await supabase
+                .from('profiles')
+                .upsert({ 
+                  id: sessionUser.id, 
+                  username: sessionUser.user_metadata.username || sessionUser.email?.split('@')[0], 
+                  balance: 1000.00 
+                })
+                .select()
+                .single();
+              
+              if (newProfile) {
+                setProfile(newProfile);
+                setBalance(newProfile.balance);
+              }
             }
           }
-          setLoading(false);
+        } catch (err) {
+          console.error('Error in handleUserAndProfile:', err);
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
         }
       };
 
       // Initial session check
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          handleUserAndProfile(session.user);
-        } else {
-          setLoading(false);
+        if (!sessionChecked) {
+          sessionChecked = true;
+          if (session?.user) {
+            handleUserAndProfile(session.user);
+          } else {
+            setLoading(false);
+          }
         }
       });
 
@@ -94,7 +105,11 @@ export function BettingProvider({ children }: { children: ReactNode }) {
             setLoading(false);
           }
         } else if (session?.user) {
-          handleUserAndProfile(session.user);
+          // Only trigger if we haven't checked the session yet or if it's a sign-in event
+          if (!sessionChecked || event === 'SIGNED_IN') {
+            sessionChecked = true;
+            handleUserAndProfile(session.user);
+          }
         }
       });
 

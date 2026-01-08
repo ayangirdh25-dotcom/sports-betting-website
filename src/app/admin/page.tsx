@@ -34,20 +34,24 @@ export default function AdminPage() {
     is_active: false
   });
 
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (!authLoading) {
-        if (!profile || profile.role !== 'admin') {
-          // Add a small delay to ensure profile is really not there
-          // and not just being updated by a parallel process
-          router.replace('/');
-          return;
+    useEffect(() => {
+      const checkAdmin = async () => {
+        // Only redirect if loading is finished
+        if (!authLoading) {
+          // If no profile or not an admin, we might need to redirect
+          // But first, let's make sure we don't even have a user session
+          // because the profile might still be null if there was an error fetching it
+          if (!profile || profile.role !== 'admin') {
+            // Give it a tiny bit more time or just check if user exists
+            // If there's no profile at all after loading, redirect
+            router.replace('/');
+            return;
+          }
+          fetchConfigs();
         }
-        fetchConfigs();
-      }
-    };
-    checkAdmin();
-  }, [profile, authLoading, router]);
+      };
+      checkAdmin();
+    }, [profile, authLoading, router]);
 
   async function fetchConfigs() {
     const { data, error } = await supabase

@@ -21,28 +21,31 @@ export function UpcomingEvents({ matches }: UpcomingEventsProps) {
     setMounted(true);
   }, []);
 
-  const formatMatchTime = (isoString: string) => {
-    if (!mounted) return ''; // Return empty or placeholder during SSR
+    const formatMatchTime = (isoString: string) => {
+      if (!mounted) return '';
 
-    const date = new Date(isoString);
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+      const date = new Date(isoString);
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const isToday = date.toDateString() === now.toDateString();
-    const isTomorrow = date.toDateString() === tomorrow.toDateString();
+      const isToday = date.toDateString() === now.toDateString();
+      const isTomorrow = date.toDateString() === tomorrow.toDateString();
 
-    const timeStr = date.toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    });
+      // Use the browser's locale and explicitly show the time in the local timezone
+      const timeStr = date.toLocaleTimeString(undefined, { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true,
+        // We can't easily get the timezone name like "IST" reliably across all browsers without a library,
+        // but we can at least ensure we are using the local time.
+      });
 
-    if (isToday) return `Today ${timeStr}`;
-    if (isTomorrow) return `Tomorrow ${timeStr}`;
-    
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ` ${timeStr}`;
-  };
+      if (isToday) return `Today ${timeStr}`;
+      if (isTomorrow) return `Tomorrow ${timeStr}`;
+      
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ` ${timeStr}`;
+    };
 
   const handleBetClick = (match: Match, selection: 'home' | 'draw' | 'away', odds: number) => {
     const selectionName = selection === 'home' ? match.homeTeam.name : 
