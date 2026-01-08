@@ -47,45 +47,42 @@ export function HomePage() {
   }, [matches, selectedSport]);
 
   return (
-    <BettingProvider>
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <HeroSection />
-        
-        <main className="max-w-7xl mx-auto px-4 py-12" id="sports">
-            <div className="mb-8">
-              <SportsCategories 
-                selectedSport={selectedSport} 
-                onSelectSport={setSelectedSport} 
-                matches={matches}
-              />
-            </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" id="live">
-            <div className="lg:col-span-2 space-y-12">
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--neon)]"></div>
-                </div>
-              ) : (
-                <>
-                  <LiveOddsBoard 
-                    matches={filteredMatches} 
-                    onMatchesUpdate={handleMatchesUpdate} 
-                  />
-                  <UpcomingEvents matches={filteredMatches} />
-                </>
-              )}
-            </div>
-            
-            <div className="lg:col-span-1">
-              <BetSlip />
-            </div>
+    <div className="min-h-screen bg-background">
+      <HeroSection />
+      
+      <main className="max-w-7xl mx-auto px-4 py-12" id="sports">
+          <div className="mb-8">
+            <SportsCategories 
+              selectedSport={selectedSport} 
+              onSelectSport={setSelectedSport} 
+              matches={matches}
+            />
           </div>
-        </main>
 
-        <Footer />
-      </div>
-    </BettingProvider>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" id="live">
+          <div className="lg:col-span-2 space-y-12">
+            {loading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--neon)]"></div>
+              </div>
+            ) : (
+              <>
+                <LiveOddsBoard 
+                  matches={filteredMatches} 
+                  onMatchesUpdate={handleMatchesUpdate} 
+                />
+                <UpcomingEvents matches={filteredMatches} />
+              </>
+            )}
+          </div>
+          
+          <div className="lg:col-span-1">
+            <BetSlip />
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

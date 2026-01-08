@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { VisualEditsMessenger } from "orchids-visual-edits";
 import { BettingProvider } from "@/components/betting-context";
+import { Navbar } from "@/components/navbar";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <BettingProvider>
+          <Navbar />
           {children}
         </BettingProvider>
         <Toaster position="top-center" richColors />

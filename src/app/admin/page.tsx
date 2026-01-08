@@ -117,12 +117,38 @@ export default function AdminPage() {
     }
   }
 
-  if (authLoading || (profile && profile.role !== 'admin')) {
+  const [editingConfig, setEditingConfig] = useState<string | null>(null);
+
+  async function handleUpdateConfig(config: ApiConfig) {
+    const { error } = await supabase
+      .from('api_configurations')
+      .update({
+        name: config.name,
+        provider_type: config.provider_type,
+        api_key: config.api_key,
+        base_url: config.base_url,
+      })
+      .eq('id', config.id);
+
+    if (error) {
+      toast.error('Failed to update configuration');
+    } else {
+      toast.success('Configuration updated');
+      setEditingConfig(null);
+      fetchConfigs();
+    }
+  }
+
+  if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background pt-16">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--neon)]"></div>
       </div>
     );
+  }
+
+  if (!profile || profile.role !== 'admin') {
+    return null; // Let the useEffect handle redirection
   }
 
   return (
@@ -234,39 +260,79 @@ export default function AdminPage() {
                   No configurations found in the system.
                 </div>
               ) : (
-                <div className="grid gap-4">
-                  {configs.map((config) => (
-                    <Card key={config.id} className={`glass-card border-border overflow-hidden transition-all hover:border-[var(--neon)]/30 ${config.is_active ? 'bg-[var(--neon)]/[0.02]' : ''}`}>
-                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className={`p-4 rounded-xl ${config.is_active ? 'bg-[var(--neon)]/20 text-[var(--neon)] ring-1 ring-[var(--neon)]/30' : 'bg-secondary text-muted-foreground'}`}>
-                            <Settings className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-lg leading-none">{config.name}</h3>
-                              {config.is_active && <span className="text-[10px] bg-[var(--neon)]/20 text-[var(--neon)] px-1.5 py-0.5 rounded font-bold uppercase">Live</span>}
+                  <div className="grid gap-4">
+                    {configs.map((config) => (
+                      <Card key={config.id} className={`glass-card border-border overflow-hidden transition-all hover:border-[var(--neon)]/30 ${config.is_active ? 'bg-[var(--neon)]/[0.02]' : ''}`}>
+                        {editingConfig === config.id ? (
+                          <div className="p-6 space-y-4">
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-xs uppercase font-bold text-muted-foreground">Name</Label>
+                                <Input 
+                                  value={config.name}
+                                  onChange={(e) => {
+                                    const updated = configs.map(c => c.id === config.id ? { ...c, name: e.target.value } : c);
+                                    setConfigs(updated);
+                                  }}
+                                  className="bg-secondary/30"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs uppercase font-bold text-muted-foreground">API Key</Label>
+                                <Input 
+                                  value={config.api_key}
+                                  onChange={(e) => {
+                                    const updated = configs.map(c => c.id === config.id ? { ...c, api_key: e.target.value } : c);
+                                    setConfigs(updated);
+                                  }}
+                                  className="bg-secondary/30"
+                                />
+                              </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1 font-mono opacity-70">{config.provider_type} • {config.base_url}</p>
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleUpdateConfig(config)} className="bg-[var(--neon)] text-black font-bold">
+                                Save Changes
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => setEditingConfig(null)}>
+                                Cancel
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                          <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-black/20 border border-border/50">
-                            <Label htmlFor={`active-${config.id}`} className="text-xs font-bold uppercase cursor-pointer">Status</Label>
-                            <Switch 
-                              id={`active-${config.id}`}
-                              checked={config.is_active}
-                              onCheckedChange={(checked) => handleToggleActive(config.id, checked)}
-                            />
+                        ) : (
+                          <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className={`p-4 rounded-xl ${config.is_active ? 'bg-[var(--neon)]/20 text-[var(--neon)] ring-1 ring-[var(--neon)]/30' : 'bg-secondary text-muted-foreground'}`}>
+                                <Settings className="w-6 h-6" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-bold text-lg leading-none">{config.name}</h3>
+                                  {config.is_active && <span className="text-[10px] bg-[var(--neon)]/20 text-[var(--neon)] px-1.5 py-0.5 rounded font-bold uppercase">Live</span>}
+                                </div>
+                                <p className="text-sm text-muted-foreground mt-1 font-mono opacity-70">{config.provider_type} • {config.base_url}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                              <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-black/20 border border-border/50">
+                                <Label htmlFor={`active-${config.id}`} className="text-xs font-bold uppercase cursor-pointer">Status</Label>
+                                <Switch 
+                                  id={`active-${config.id}`}
+                                  checked={config.is_active}
+                                  onCheckedChange={(checked) => handleToggleActive(config.id, checked)}
+                                />
+                              </div>
+                              <Button variant="ghost" size="icon" onClick={() => setEditingConfig(config.id)} className="text-muted-foreground hover:text-foreground">
+                                <Plus className="w-5 h-5 rotate-45" /> {/* Using Plus rotated as a settings/edit icon alternative since I don't have Edit icon imported yet, oh wait I do have Settings */}
+                              </Button>
+                              <Button variant="ghost" size="icon" className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => handleDelete(config.id)}>
+                                <Trash2 className="w-5 h-5" />
+                              </Button>
+                            </div>
                           </div>
-                          <Button variant="ghost" size="icon" className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => handleDelete(config.id)}>
-                            <Trash2 className="w-5 h-5" />
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
               )}
             </div>
           </div>

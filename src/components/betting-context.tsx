@@ -146,6 +146,10 @@ export function BettingProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
+    setBalance(0);
+    window.location.href = '/';
   }, []);
 
   return (
