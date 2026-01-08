@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { Match, formatOdds } from '@/lib/betting-data';
