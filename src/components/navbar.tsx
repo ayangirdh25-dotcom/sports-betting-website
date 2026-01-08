@@ -62,20 +62,24 @@ export function Navbar() {
                       {profile?.username || user.email}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 glass-card border-border">
-                    <DropdownMenuItem className="cursor-pointer">
-                      <User className="w-4 h-4 mr-2" />
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                      <Trophy className="w-4 h-4 mr-2" />
-                      Bet History
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-destructive">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
+                    <DropdownMenuContent align="end" className="w-48 glass-card border-border">
+                      <Link href="/profile">
+                        <DropdownMenuItem className="cursor-pointer">
+                          <User className="w-4 h-4 mr-2" />
+                          Profile
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link href="/profile?tab=history">
+                        <DropdownMenuItem className="cursor-pointer">
+                          <Trophy className="w-4 h-4 mr-2" />
+                          Bet History
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-destructive">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
                 </DropdownMenu>
 
                 <Button className="bg-[var(--neon)] text-black hover:bg-[var(--neon)]/90">

@@ -38,6 +38,10 @@ export const sportsCategories = [
   { id: 'esports', name: 'Esports', icon: '🎮' },
   { id: 'mma', name: 'MMA', icon: '🥊' },
   { id: 'baseball', name: 'Baseball', icon: '⚾' },
+  { id: 'cricket', name: 'Cricket', icon: '🏏' },
+  { id: 'volleyball', name: 'Volleyball', icon: '🏐' },
+  { id: 'hockey', name: 'Ice Hockey', icon: '🏒' },
+  { id: 'formula1', name: 'Formula 1', icon: '🏎️' },
 ];
 
 export const initialMatches: Match[] = [
@@ -124,6 +128,26 @@ export const initialMatches: Match[] = [
     odds: { home: 1.45, away: 2.70 },
     isLive: false,
     startTime: '20:45',
+  },
+  {
+    id: '9',
+    sport: 'cricket',
+    league: 'IPL',
+    homeTeam: { name: 'Mumbai Indians', logo: '🏏' },
+    awayTeam: { name: 'CSK', logo: '🦁' },
+    odds: { home: 1.90, away: 1.90 },
+    isLive: false,
+    startTime: '19:00',
+  },
+  {
+    id: '10',
+    sport: 'formula1',
+    league: 'Abu Dhabi GP',
+    homeTeam: { name: 'Max Verstappen', logo: '🏎️' },
+    awayTeam: { name: 'Lewis Hamilton', logo: '🏎️' },
+    odds: { home: 1.50, away: 3.50 },
+    isLive: false,
+    startTime: '17:00',
   },
 ];
 
