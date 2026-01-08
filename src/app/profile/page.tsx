@@ -67,10 +67,13 @@ function ProfileContent() {
                   {profile?.username?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
                 </div>
               </div>
-              <div className="space-y-1">
-                <h2 className="text-2xl font-bold">{profile?.username || 'User'}</h2>
-                <p className="text-muted-foreground text-sm">{user.email}</p>
-              </div>
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold">{profile?.username || 'User'}</h2>
+                  {user.email && !user.email.endsWith('@app.local') && (
+                    <p className="text-muted-foreground text-sm">{user.email}</p>
+                  )}
+                </div>
+
               <div className="mt-6 flex items-center gap-2 p-4 rounded-xl bg-secondary/50">
                 <Wallet className="w-5 h-5 text-[var(--neon)]" />
                 <div>
