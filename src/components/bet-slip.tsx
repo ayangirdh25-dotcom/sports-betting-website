@@ -1,19 +1,29 @@
 "use client";
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Check } from 'lucide-react';
+import { X, Trash2, Check, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useBetting } from '@/components/betting-context';
 import { formatOdds } from '@/lib/betting-data';
+import { toast } from 'sonner';
 
 export function BetSlip() {
-  const { betSlip, balance, removeFromBetSlip, updateStake, clearBetSlip, placeBet } = useBetting();
+  const { betSlip, balance, user, removeFromBetSlip, updateStake, clearBetSlip, placeBet } = useBetting();
 
   const totalStake = betSlip.reduce((sum, b) => sum + b.stake, 0);
   const totalOdds = betSlip.reduce((acc, b) => acc * b.odds, 1);
   const potentialWin = totalStake * totalOdds;
-  const canPlaceBet = betSlip.length > 0 && totalStake > 0 && totalStake <= balance;
+  const canPlaceBet = betSlip.length > 0 && totalStake > 0 && totalStake <= balance && user;
+
+  const handlePlaceBet = async () => {
+    try {
+      await placeBet();
+      toast.success('Bet placed successfully!');
+    } catch (error: any) {
+      toast.error('Failed to place bet: ' + error.message);
+    }
+  };
 
   return (
     <div className="glass-card rounded-xl border border-border overflow-hidden h-fit sticky top-20">
@@ -113,16 +123,26 @@ export function BetSlip() {
               </span>
             </div>
 
-            <Button
-              onClick={placeBet}
-              disabled={!canPlaceBet}
-              className="w-full bg-[var(--neon)] text-black hover:bg-[var(--neon)]/90 disabled:opacity-50"
-            >
-              <Check className="w-4 h-4 mr-2" />
-              Place Bet
-            </Button>
+            {!user ? (
+              <div className="space-y-2">
+                <p className="text-xs text-center text-muted-foreground">Please login to place bets</p>
+                <Button className="w-full" variant="outline" disabled>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login to Bet
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={handlePlaceBet}
+                disabled={!canPlaceBet}
+                className="w-full bg-[var(--neon)] text-black hover:bg-[var(--neon)]/90 disabled:opacity-50"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Place Bet
+              </Button>
+            )}
 
-            {totalStake > balance && (
+            {user && totalStake > balance && (
               <p className="text-xs text-destructive text-center">
                 Insufficient balance. Please deposit more funds.
               </p>

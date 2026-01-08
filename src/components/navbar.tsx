@@ -3,18 +3,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Zap, Menu, X, Wallet, LogIn, UserPlus, Trophy, Gift } from 'lucide-react';
+import { Zap, Menu, X, Wallet, LogIn, UserPlus, Trophy, Gift, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBetting } from '@/components/betting-context';
+import { AuthModal } from '@/components/auth-modal';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const { balance } = useBetting();
+  const { balance, user, profile, signOut } = useBetting();
 
   const navLinks = [
     { name: 'Sports', href: '#sports' },
@@ -51,75 +48,44 @@ export function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary">
-              <Wallet className="w-4 h-4 text-[var(--neon)]" />
-              <span className="font-semibold">${balance.toFixed(2)}</span>
-            </div>
-            
-            <Dialog open={authOpen} onOpenChange={setAuthOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="border-[var(--neon)] text-[var(--neon)] hover:bg-[var(--neon)] hover:text-black">
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Login
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="glass-card border-border sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-center text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    Welcome to VELOCITY<span className="text-[var(--neon)]">BET</span>
-                  </DialogTitle>
-                </DialogHeader>
-                <Tabs defaultValue="login" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 bg-secondary">
-                    <TabsTrigger value="login">Login</TabsTrigger>
-                    <TabsTrigger value="register">Register</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="login" className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" placeholder="you@example.com" className="bg-secondary border-border" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input id="password" type="password" placeholder="••••••••" className="bg-secondary border-border" />
-                    </div>
-                    <Button className="w-full bg-[var(--neon)] text-black hover:bg-[var(--neon)]/90">
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Sign In
+            {user ? (
+              <>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary">
+                  <Wallet className="w-4 h-4 text-[var(--neon)]" />
+                  <span className="font-semibold">${balance.toFixed(2)}</span>
+                </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="gap-2">
+                      <User className="w-4 h-4" />
+                      {profile?.username || user.email}
                     </Button>
-                  </TabsContent>
-                  <TabsContent value="register" className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="reg-name">Full Name</Label>
-                      <Input id="reg-name" placeholder="John Doe" className="bg-secondary border-border" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="reg-email">Email</Label>
-                      <Input id="reg-email" type="email" placeholder="you@example.com" className="bg-secondary border-border" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="reg-password">Password</Label>
-                      <Input id="reg-password" type="password" placeholder="••••••••" className="bg-secondary border-border" />
-                    </div>
-                    <div className="p-3 rounded-lg bg-[var(--neon)]/10 border border-[var(--neon)]/30">
-                      <div className="flex items-center gap-2 text-[var(--neon)]">
-                        <Gift className="w-4 h-4" />
-                        <span className="font-semibold text-sm">Welcome Bonus: 100% up to $500</span>
-                      </div>
-                    </div>
-                    <Button className="w-full bg-[var(--neon)] text-black hover:bg-[var(--neon)]/90">
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Create Account
-                    </Button>
-                  </TabsContent>
-                </Tabs>
-              </DialogContent>
-            </Dialog>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 glass-card border-border">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Bet History
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-destructive">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-            <Button className="bg-[var(--neon)] text-black hover:bg-[var(--neon)]/90">
-              <Trophy className="w-4 h-4 mr-2" />
-              Deposit
-            </Button>
+                <Button className="bg-[var(--neon)] text-black hover:bg-[var(--neon)]/90">
+                  <Trophy className="w-4 h-4 mr-2" />
+                  Deposit
+                </Button>
+              </>
+            ) : (
+              <AuthModal />
+            )}
           </div>
 
           <button
@@ -149,17 +115,20 @@ export function Navbar() {
                   {link.name}
                 </a>
               ))}
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary w-fit">
-                <Wallet className="w-4 h-4 text-[var(--neon)]" />
-                <span className="font-semibold">${balance.toFixed(2)}</span>
-              </div>
+              {user && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary w-fit">
+                  <Wallet className="w-4 h-4 text-[var(--neon)]" />
+                  <span className="font-semibold">${balance.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 border-[var(--neon)] text-[var(--neon)]">
-                  Login
-                </Button>
-                <Button className="flex-1 bg-[var(--neon)] text-black">
-                  Register
-                </Button>
+                {!user ? (
+                  <AuthModal />
+                ) : (
+                  <Button onClick={() => signOut()} variant="outline" className="flex-1 text-destructive">
+                    Logout
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>
